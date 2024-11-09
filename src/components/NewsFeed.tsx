@@ -1,23 +1,24 @@
 import React from 'react';
 import { useQuery } from '@apollo/client';
-// import { GET_POSTS, Post } from '../graphql';
+import { GET_POSTS } from '../graphql/queries/queries';
 
-const NewsFeed: React.FC = () => {
-  // const { loading, error, data } = useQuery<{ posts: Post[] }>(GET_POSTS);
+const NewsFeed: React.FC<{ userId: string }> = ({ userId }) => {
+  const { loading, error, data } = useQuery(GET_POSTS, {
+    variables: { userId },
+  });
 
-  // if (loading) return <div>Loading...</div>;
-  // if (error) return <div>Error: {error.message}</div>;
+  if (loading) return <p>Loading posts...</p>;
+  if (error) return <p>Error: {error.message}</p>;
 
   return (
-    <div className="space-y-4">
-      {/* {data?.posts.map((post) => (
-        <div key={post.id} className="border p-4 rounded">
-          <h3 className="font-semibold">{post.author.name}</h3>
+    <div>
+      {data.posts.map((post: any) => (
+        <div key={post.id} className="post">
+          <h3>{post.user.username}</h3>
           <p>{post.content}</p>
-          {post.image && <img src={post.image} alt="post" className="w-full h-64 object-cover" />}
-          <span className="text-sm text-gray-500">{new Date(post.createdAt).toLocaleString()}</span>
+          {post.imageUrl && <img src={post.imageUrl} alt="post" />}
         </div>
-      ))} */}
+      ))}
     </div>
   );
 };
