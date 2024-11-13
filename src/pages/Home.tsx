@@ -29,18 +29,39 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h1>Welcome to the Home Page!</h1>
-      {userId && (  
-        <>
+    <div className="relative flex flex-col items-center justify-start h-screen p-4 mt-2">
+    {/* Logout Button (Top Right Corner) */}
+    <button
+      onClick={logOut}
+      className="absolute top-4 right-4 bg-red-500 text-white p-2 rounded shadow-lg"
+    >
+      Log Out
+    </button>
+  
+    <h1 className="text-2xl font-bold mb-4 mt-3">Welcome to the Home Page!</h1>
+  
+    {userId && (
+      <>
+  
+        {/* Main Content: NewsFeed and Sidebar */}
+        <div className="flex w-full h-[80%]">
+          {/* NewsFeed Component */}
+          <div className="w-[70%] h-full pr-4">
+          <div className=" mb-4">
           <CreatePost userId={userId} />
-          <NewsFeed userId={userId} />
-        </>
-      )}
-      <button onClick={logOut} className="bg-red-500 text-white p-2 rounded">
-        Log Out
-      </button>
-    </div>
+         </div>
+          
+            <NewsFeed userId={userId} />
+          </div>
+  
+          {/* Blank Container (Sidebar or Placeholder) */}
+          <div className="w-[30%] h-full bg-gray-200 rounded-lg"></div>
+        </div>
+      </>
+    )}
+  </div>
+  
+  
   );
 };
 

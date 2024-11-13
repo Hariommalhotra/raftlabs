@@ -1,15 +1,16 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const GET_POSTS = gql`
   query GetPosts($userId: ID!) {
-    posts(userId: $userId) {
-      id
-      content
-      imageUrl
-      createdAt
-      user {
-        id
-        username
+    postsCollection {
+      edges {
+        node {
+          user_id
+          image_url
+          created_at
+          content
+          user_name
+        }
       }
     }
   }

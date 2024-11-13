@@ -1,12 +1,23 @@
-// src/queries/createPost.ts
 import { gql } from '@apollo/client';
 
 export const CREATE_POST = gql`
-  mutation CreatePost($userId: ID!, $content: String!, $image: Upload) {
-    createPost(userId: $userId, content: $content, image: $image) {
-      id
-      content
-      createdAt
+  mutation CreatePost($userId: String!, $content: String!, $imageUrl: String) {
+    insertIntopostsCollection(
+      objects: [
+        {
+          user_id: $userId,
+          content: $content,
+          image_url: $imageUrl
+        }
+      ]
+    ) {
+      affectedCount
+      records {
+        id
+        content
+        image_url
+        created_at
+      }
     }
   }
 `;
