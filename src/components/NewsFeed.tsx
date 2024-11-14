@@ -2,7 +2,7 @@ import React from "react";
 import { useQuery } from "@apollo/client";
 import { GET_POSTS } from "../graphql/queries/queries";
 
-const NewsFeed: React.FC<{ userId: string }> = ({ userId }) => {
+const NewsFeed: React.FC<{ userId: string, userEmail:string }> = ({ userId }) => {
   const { loading, error, data } = useQuery(GET_POSTS, {
     variables: { userId },
   });
@@ -21,15 +21,14 @@ const NewsFeed: React.FC<{ userId: string }> = ({ userId }) => {
       <h1 className="text-lg font-semibold text-gray-800">
         {item?.node?.user_name}
       </h1>
-      <h3 className="text-sm text-gray-500">{item?.node.user_id}</h3>
-      <p className="text-gray-700 mt-2">{item?.node.content}</p>
-      {item?.node.imageUrl && (
+      {item?.node.image_url && (
         <img
-          src={item?.node.imageUrl}
+          src={item?.node.image_url}
           alt="post"
           className="w-full h-auto rounded-md mt-4"
         />
       )}
+        <p className="text-gray-700 mt-2">{item?.node.content}</p>
     </div>
   ))}
 </div>

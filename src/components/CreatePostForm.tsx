@@ -1,59 +1,55 @@
-// src/components/CreatePost.tsx
-import React, { useState } from 'react';
-import { useMutation } from '@apollo/client';
-import { CREATE_POST } from '../graphql/queries/mutations';
-import { supabase } from '../supabaseClient';
+import React, { useState } from "react";
+import { useMutation } from "@apollo/client";
+import { CREATE_POST } from "../graphql/queries/mutations";
+import { supabase } from "../supabaseClient";
 
-// Upload image to Supabase and return public URL
+// Function to upload image to Supabase and get the public URL
+const uploadImageToSupabase = async (file: File): Promise<string | null> => {
+  const fileName = `${Date.now()}-${file.name}`;
 
+  // Upload the image to the "media" bucket
+  const { error } = await supabase.storage
+    .from("media") // Ensure you are using the correct bucket name
+    .upload(fileName, file);
 
-const CreatePost: React.FC<{ userId: string }> = ({ userId }) => {
-  const [content, setContent] = useState('');
+  if (error) {
+    console.error("Image upload error:", error.message);
+    return null;
+  }
+
+  // Get the public URL of the uploaded image
+  const { data } = await supabase.storage
+    .from("media")
+    .createSignedUrl(fileName, 60 * 60 * 24 * 30);
+
+  // Return the public URL or null if not available
+  return data?.signedUrl ?? null;
+};
+
+const CreatePost: React.FC<{ userId: string, userEmail:string }> = ({ userId, userEmail}) => {
+  const [content, setContent] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [createPost, { loading, error }] = useMutation(CREATE_POST);
-
-
-
-  const uploadImageToSupabase = async (file: File): Promise<string | null> => {
-    const fileName = `${Date.now()}-${file.name}`;
-  
-    // Upload the image to the "images" bucket
-    const { error } = await supabase.storage
-      .from('media')
-      .upload(fileName, file);
-    if (error) {
-      console.error('Image upload error:', error.message);
-      return null;
-    }
-  
-    // Get the public URL of the uploaded image
-    const { data } = supabase.storage.from('media').getPublicUrl(fileName);
-    // Return the public URL or null if not available
-    return data?.publicUrl ?? null;
-  };
-
-
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Check if content is empty
     if (!content.trim()) {
-      alert('Please enter some content.');
+      alert("Please enter some content.");
       return;
     }
 
-    let imageUrl: string = ''; // Default to empty string if no image is uploaded
+    let imageUrl = ""; // Initialize imageUrl as an empty string (fallback if no image is uploaded)
 
     // Upload the image if it exists
     if (image) {
       const uploadedImageUrl = await uploadImageToSupabase(image);
-      console.log({uploadedImageUrl})
       if (!uploadedImageUrl) {
-        alert('Image upload failed. Please try again.');
+        alert("Image upload failed. Please try again.");
         return;
       }
-      imageUrl = uploadedImageUrl;
+      imageUrl = uploadedImageUrl; // Set the imageUrl after successful upload
     }
 
     // Create the post using the GraphQL mutation
@@ -62,20 +58,24 @@ const CreatePost: React.FC<{ userId: string }> = ({ userId }) => {
         variables: {
           userId,
           content,
-          imageUrl, // Pass the imageUrl to the mutation
+          imageUrl,
+          user_name:userEmail // Pass the imageUrl to the mutation
         },
       });
 
-      // Reset the form fields
-      setContent('');
+      // Reset the form fields after successful post creation
+      setContent("");
       setImage(null);
     } catch (err) {
-      console.error('Error creating post:', err);
+      console.error("Error creating post:", err);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center justify-between w-full max-w-3xl p-4 bg-white rounded-lg shadow-md border border-gray-300">
+    <form
+      onSubmit={handleSubmit}
+      className="flex items-center justify-between w-full max-w-3xl p-4 bg-white rounded-lg shadow-md border border-gray-300"
+    >
       {/* Textarea for content */}
       <textarea
         value={content}
@@ -102,7 +102,7 @@ const CreatePost: React.FC<{ userId: string }> = ({ userId }) => {
         disabled={loading}
         className="ml-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
       >
-        {loading ? 'Posting...' : 'Post'}
+        {loading ? "Posting..." : "Post"}
       </button>
 
       {/* Error Message */}

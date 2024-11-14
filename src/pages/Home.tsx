@@ -3,10 +3,16 @@ import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
 import NewsFeed from "../components/NewsFeed";
 import CreatePost from "../components/CreatePostForm";
+import UsersList from "../components/UsersList";
+
+
+
 
 const Home: React.FC = () => {
   const [userId, setUserId] = useState<string>("");  // Local state for userId
+  const [userEmail, setUserEmail] = useState<string>("");  // Local state for userId
   const navigate = useNavigate();
+
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -16,6 +22,9 @@ const Home: React.FC = () => {
       } else {
         // If the user is logged in, set the userId state
         setUserId(user.uid);
+        if(user.email){
+        setUserEmail(user.email);
+        }
       }
     });
 
@@ -48,14 +57,16 @@ const Home: React.FC = () => {
           {/* NewsFeed Component */}
           <div className="w-[70%] h-full pr-4">
           <div className=" mb-4">
-          <CreatePost userId={userId} />
+          <CreatePost userId={userId} userEmail={userEmail} />
          </div>
           
-            <NewsFeed userId={userId} />
+            <NewsFeed userId={userId} userEmail={userEmail}/>
           </div>
   
           {/* Blank Container (Sidebar or Placeholder) */}
-          <div className="w-[30%] h-full bg-gray-200 rounded-lg"></div>
+          <div className="w-[30%] h-full bg-gray-200 rounded-lg">
+          <UsersList userId={userId} />
+          </div>
         </div>
       </>
     )}
