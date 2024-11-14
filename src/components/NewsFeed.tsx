@@ -10,7 +10,15 @@ const NewsFeed: React.FC<{ userId: string, userEmail:string, followedUsersIds:{ 
 
   if (loading) return <p>Loading posts...</p>;
   if (error) return <p>Error: {error.message}</p>;
-const filterdNewsFeedData = data?.postsCollection?.edges?.filter((item:any)=>item?.node?.user_id===followedUsersIds[0]?.following_id||userId)
+  const filterdNewsFeedData = data?.postsCollection?.edges?.filter((item: any) => {
+    const postUserId = item?.node?.user_id;
+    const isFollowedUser = followedUsersIds.some(
+      (followedUser) => followedUser?.following_id === postUserId
+    );
+    
+    return postUserId === userId || isFollowedUser;
+  });
+  
   return (
 <div className="space-y-6 p-4 bg-gray-100">
   {filterdNewsFeedData?.map((item: any) => (
