@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import NewsFeed from "../components/NewsFeed";
 import CreatePost from "../components/CreatePostForm";
 import UsersList from "../components/UsersList";
+import { supabase } from "../supabaseClient";
 
 
 
@@ -12,7 +13,24 @@ const Home: React.FC = () => {
   const [userId, setUserId] = useState<string>("");  // Local state for userId
   const [userEmail, setUserEmail] = useState<string>("");  // Local state for userId
   const navigate = useNavigate();
+  const [followedUsersIds, setFollowedUsersIds] =useState<{ following_id: string}[]>([])
 
+  interface FollowType {
+    following_id: string;
+  }
+  const fetchFollowing = async (userId: string): Promise<FollowType[]> => {
+    const { data, error } = await supabase
+      .from("follows")
+      .select("following_id")
+      .eq("follower_id", userId);
+      setFollowedUsersIds(data ?? [])
+    if (error) {
+      console.error("Error fetching following list:", error);
+      return [];
+    }
+  
+    return data || [];
+  };
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -22,6 +40,7 @@ const Home: React.FC = () => {
       } else {
         // If the user is logged in, set the userId state
         setUserId(user.uid);
+        fetchFollowing(user?.uid)
         if(user.email){
         setUserEmail(user.email);
         }
@@ -47,7 +66,7 @@ const Home: React.FC = () => {
       Log Out
     </button>
   
-    <h1 className="text-2xl font-bold mb-4 mt-3">Welcome to the Home Page!</h1>
+    <h1 className="text-2xl font-bold mb-4 mt-3">Welcome {userEmail} to the Home Page!</h1>
   
     {userId && (
       <>
@@ -60,7 +79,7 @@ const Home: React.FC = () => {
           <CreatePost userId={userId} userEmail={userEmail} />
          </div>
           
-            <NewsFeed userId={userId} userEmail={userEmail}/>
+            <NewsFeed userId={userId} userEmail={userEmail} followedUsersIds={followedUsersIds}/>
           </div>
   
           {/* Blank Container (Sidebar or Placeholder) */}

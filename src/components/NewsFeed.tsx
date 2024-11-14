@@ -2,20 +2,20 @@ import React from "react";
 import { useQuery } from "@apollo/client";
 import { GET_POSTS } from "../graphql/queries/queries";
 
-const NewsFeed: React.FC<{ userId: string, userEmail:string }> = ({ userId }) => {
+const NewsFeed: React.FC<{ userId: string, userEmail:string, followedUsersIds:{ following_id: string}[]}> = ({ userId ,followedUsersIds}) => {
   const { loading, error, data } = useQuery(GET_POSTS, {
     variables: { userId },
   });
-  console.log({ data });
+  console.log({ data ,followedUsersIds});
 
   if (loading) return <p>Loading posts...</p>;
   if (error) return <p>Error: {error.message}</p>;
-
+const filterdNewsFeedData = data?.postsCollection?.edges?.filter((item:any)=>item?.node?.user_id===followedUsersIds[0]?.following_id)
   return (
 <div className="space-y-6 p-4 bg-gray-100">
-  {data?.postsCollection?.edges?.map((item: any) => (
+  {filterdNewsFeedData?.map((item: any) => (
     <div
-      key={item?.node.id}
+      key={item?.node.user_id}
       className="post bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto"
     >
       <h1 className="text-lg font-semibold text-gray-800">

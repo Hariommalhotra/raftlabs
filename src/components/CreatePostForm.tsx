@@ -74,7 +74,7 @@ const CreatePost: React.FC<{ userId: string, userEmail:string }> = ({ userId, us
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex items-center justify-between w-full max-w-3xl p-4 bg-white rounded-lg shadow-md border border-gray-300"
+      className="flex items-center justify-between w-full p-4 bg-white rounded-lg shadow-md border border-gray-300"
     >
       {/* Textarea for content */}
       <textarea
